@@ -10,6 +10,58 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Google Fonts: Cairo -->
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Firebase SDK Setup -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // App Initialization Constants
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'basma-store-app';
+    const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+      apiKey: "demo-key",
+      authDomain: "demo.firebaseapp.com",
+      projectId: "demo-project",
+      storageBucket: "demo.appspot.com",
+      messagingSenderId: "123456789",
+      appId: "1:123456789:web:123456"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    window.db = db;
+    window.appId = appId;
+    window.auth = auth;
+    
+    // Attach Firestore functions to window so they are globally accessible
+    window.collection = collection;
+    window.doc = doc;
+    window.setDoc = setDoc;
+    window.deleteDoc = deleteDoc;
+    window.onSnapshot = onSnapshot;
+
+    // Authenticate user to access cloud storage
+    async function initAuth() {
+      try {
+        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+          await signInWithCustomToken(auth, __initial_auth_token);
+        } else {
+          await signInAnonymously(auth);
+        }
+        console.log("Cloud Auth initialized successfully");
+        if (typeof window.setupCloudSync === 'function') {
+          window.setupCloudSync();
+        }
+      } catch (err) {
+        console.error("Auth Error:", err);
+      }
+    }
+    initAuth();
+  </script>
+
   <script>
     tailwind.config = {
       theme: {
@@ -358,13 +410,37 @@
     const DEFAULT_PHONE = '201129941968';
 
     // App State
-    let products = JSON.parse(localStorage.getItem('basma_products')) || [];
+    let products = [];
     let cart = JSON.parse(localStorage.getItem('basma_cart')) || [];
     let storePhone = localStorage.getItem('basma_phone') || DEFAULT_PHONE;
     let isAdminLoggedIn = false;
     let currentCategory = 'جميع المنتجات';
     let searchQuery = '';
     let productToDeleteId = null;
+
+    // Firebase Cloud Synchronization
+    window.setupCloudSync = function() {
+      if (!window.db || !window.auth.currentUser) return;
+      
+      // Collection Path for Public Products
+      const productsRef = collection(window.db, 'artifacts', window.appId, 'public', 'data', 'products');
+      
+      // Real-time synchronization for all users/devices
+      onSnapshot(productsRef, (snapshot) => {
+        const cloudProducts = [];
+        snapshot.forEach((docSnap) => {
+          cloudProducts.push({ id: docSnap.id, ...docSnap.data() });
+        });
+        
+        // Sort by creation time if available, or title
+        products = cloudProducts.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        
+        renderProducts();
+        if (isAdminLoggedIn) renderAdminProducts();
+      }, (error) => {
+        console.error("Cloud Sync Error:", error);
+      });
+    };
 
     // DOM Elements
     const elements = {
@@ -428,11 +504,36 @@
       setupEventListeners();
     };
 
-    // Save Data Helpers
-    function saveProducts() {
-      localStorage.setItem('basma_products', JSON.stringify(products));
-      renderProducts();
-      if (isAdminLoggedIn) renderAdminProducts();
+    // Save Product to Cloud Database
+    async function saveProductToCloud(productData) {
+      if (!window.db || !window.auth.currentUser) {
+        showToast('جاري الاتصال بالسحابة... حاول مجدداً');
+        return;
+      }
+      try {
+        const docRef = doc(window.db, 'artifacts', window.appId, 'public', 'data', 'products', productData.id);
+        await setDoc(docRef, {
+          ...productData,
+          createdAt: productData.createdAt || Date.now()
+        });
+        showToast('تم حفظ المنتج في السحابة بنجاح ☁️');
+      } catch (err) {
+        console.error("Error saving product:", err);
+        showToast('حدث خطأ أثناء الحفظ بالسحابة');
+      }
+    }
+
+    // Delete Product from Cloud Database
+    async function deleteProductFromCloud(id) {
+      if (!window.db || !window.auth.currentUser) return;
+      try {
+        const docRef = doc(window.db, 'artifacts', window.appId, 'public', 'data', 'products', id);
+        await deleteDoc(docRef);
+        showToast('تم حذف المنتج من السحابة ☁️');
+      } catch (err) {
+        console.error("Error deleting product:", err);
+        showToast('حدث خطأ أثناء الحذف');
+      }
     }
 
     function saveCart() {
@@ -534,15 +635,15 @@
       });
 
       // Delete Modal Confirmation
-      elements.confirmDeleteBtn.addEventListener('click', () => {
+      elements.confirmDeleteBtn.addEventListener('click', async () => {
         if (productToDeleteId) {
-          products = products.filter(p => p.id !== productToDeleteId);
-          cart = cart.filter(item => item.id !== productToDeleteId);
-          saveProducts();
-          saveCart();
+          const id = productToDeleteId;
           productToDeleteId = null;
           elements.deleteModal.classList.add('hidden');
-          showToast('تم حذف المنتج بنجاح');
+          
+          await deleteProductFromCloud(id);
+          cart = cart.filter(item => item.id !== id);
+          saveCart();
         }
       });
 
@@ -798,18 +899,18 @@
       const image = elements.productImageInput.value.trim();
       const desc = elements.productDescInput.value.trim();
 
-      const existingIndex = products.findIndex(p => p.id === id);
-      const productData = { id, title, price, category, image, desc };
+      const existingProduct = products.find(p => p.id === id);
+      const productData = { 
+        id, 
+        title, 
+        price, 
+        category, 
+        image, 
+        desc,
+        createdAt: existingProduct ? (existingProduct.createdAt || Date.now()) : Date.now()
+      };
 
-      if (existingIndex >= 0) {
-        products[existingIndex] = productData;
-        showToast('تم تعديل المنتج بنجاح');
-      } else {
-        products.push(productData);
-        showToast('تم إضافة المنتج الجديد بنجاح');
-      }
-
-      saveProducts();
+      saveProductToCloud(productData);
       closeProductModal();
     }
 
