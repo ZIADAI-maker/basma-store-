@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Basma Store - متجر بسمة</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts: Cairo -->
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            cairo: ['Cairo', 'sans-serif'],
+          },
+          colors: {
+            pink: {
+              50: '#fdf2f8',
+              100: '#fce7f3',
+              200: '#fbcfe8',
+              300: '#f9a8d4',
+              400: '#f472b6',
+              500: '#ec4899',
+              600: '#db2777',
+              700: '#be185d',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: linear-gradient(135deg, #fff5f7 0%, #fed6e3 100%);
+      min-height: 100vh;
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 182, 193, 0.3);
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #fce7f3;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #f472b6;
+      border-radius: 10px;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+      animation: fadeIn 0.3s ease-out forwards;
+    }
+  </style>
+</head>
+<body class="text-gray-800 antialiased pb-12 flex flex-col min-h-screen">
+
+  <!-- Header / Navigation -->
+  <header class="sticky top-0 z-40 glass-card shadow-sm border-b border-pink-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-20">
+        <!-- Logo -->
+        <div class="flex items-center gap-3 cursor-pointer" onclick="resetFilters()">
+          <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-pink-500 to-rose-300 flex items-center justify-center text-white shadow-md shadow-pink-200">
+            <i class="fa-solid fa-crown text-xl"></i>
+          </div>
+          <div>
+            <h1 class="text-2xl font-black bg-gradient-to-r from-pink-600 to-rose-500 bg-clip-text text-transparent">Basma Store</h1>
+            <p class="text-xs text-pink-400 font-semibold tracking-wide">متجركِ المفضّل للأناقة والجمال</p>
+          </div>
+        </div>
+
+        <!-- Navigation Controls -->
+        <div class="flex items-center gap-2 sm:gap-3">
+          <!-- Toggle Search -->
+          <button id="toggle-search-btn" class="p-2.5 rounded-full hover:bg-pink-100/60 text-pink-600 transition" title="بحث">
+            <i class="fa-solid fa-magnifying-glass text-lg"></i>
+          </button>
+
+          <!-- Cart Icon -->
+          <button id="cart-btn" class="relative p-2.5 rounded-full hover:bg-pink-100/60 text-pink-600 transition" title="سلة التسوق">
+            <i class="fa-solid fa-bag-shopping text-xl"></i>
+            <span id="cart-badge" class="absolute top-1 right-1 bg-pink-600 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center transform scale-0 transition-transform duration-300 shadow-sm">0</span>
+          </button>
+
+          <!-- Admin Dashboard Link -->
+          <button id="admin-login-btn" class="px-4 py-2 rounded-full bg-white/90 border border-pink-200 text-pink-600 hover:bg-pink-50 text-xs sm:text-sm font-bold transition flex items-center gap-2 shadow-sm">
+            <i class="fa-solid fa-user-gear"></i>
+            <span>لوحة التحكم</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Expandable Search Bar -->
+      <div id="search-container" class="hidden pb-4 animate-fade-in">
+        <div class="relative max-w-md mx-auto">
+          <input type="text" id="search-input" placeholder="ابحثي عن منتج..." class="w-full pr-10 pl-4 py-2.5 rounded-full border border-pink-200 focus:outline-none focus:ring-2 focus:ring-pink-400 text-sm bg-white/90 shadow-inner">
+          <i class="fa-solid fa-magnifying-glass absolute right-3.5 top-3 text-pink-400"></i>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 flex-grow">
+    
+    <!-- Hero Banner -->
+    <section class="glass-card rounded-3xl p-6 sm:p-10 mb-8 border border-pink-100 shadow-sm relative overflow-hidden text-center sm:text-right">
+      <div class="relative z-10 max-w-xl">
+        <span class="inline-block px-3.5 py-1 rounded-full bg-pink-100 text-pink-600 text-xs font-bold mb-3">تشكيلة واسعة وفاخرة ✨</span>
+        <h2 class="text-2xl sm:text-4xl font-extrabold text-gray-800 leading-tight mb-3">أجمل المنتجات بلمسة من الأناقة والتميز</h2>
+        <p class="text-sm sm:text-base text-gray-600 mb-6">اختاري أفضل المنتجات الخاصة بكِ واطلبيها بنقرة واحدة عبر الواتساب بكل سهولة.</p>
+      </div>
+      <div class="absolute -left-10 -bottom-10 w-64 h-64 bg-pink-200/50 rounded-full blur-3xl pointer-events-none"></div>
+    </section>
+
+    <!-- Categories Filters -->
+    <section class="mb-8">
+      <div class="flex items-center gap-2 overflow-x-auto pb-2 custom-scrollbar text-sm font-semibold">
+        <button class="category-btn active px-5 py-2.5 rounded-full bg-pink-500 text-white shadow-md shadow-pink-200 transition whitespace-nowrap" data-category="جميع المنتجات">جميع المنتجات</button>
+        <button class="category-btn px-5 py-2.5 rounded-full bg-white/80 text-gray-600 border border-pink-100 hover:bg-pink-50 transition whitespace-nowrap" data-category="مكياج">مكياج</button>
+        <button class="category-btn px-5 py-2.5 rounded-full bg-white/80 text-gray-600 border border-pink-100 hover:bg-pink-50 transition whitespace-nowrap" data-category="عناية بالبشرة">عناية بالبشرة</button>
+        <button class="category-btn px-5 py-2.5 rounded-full bg-white/80 text-gray-600 border border-pink-100 hover:bg-pink-50 transition whitespace-nowrap" data-category="إكسسوارات">إكسسوارات</button>
+        <button class="category-btn px-5 py-2.5 rounded-full bg-white/80 text-gray-600 border border-pink-100 hover:bg-pink-50 transition whitespace-nowrap" data-category="عطور">عطور</button>
+        <button class="category-btn px-5 py-2.5 rounded-full bg-white/80 text-gray-600 border border-pink-100 hover:bg-pink-50 transition whitespace-nowrap" data-category="أخرى">أخرى</button>
+      </div>
+    </section>
+
+    <!-- Products Grid -->
+    <section>
+      <div id="product-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <!-- Dynamic Product Cards will be rendered here -->
+      </div>
+
+      <!-- Empty State -->
+      <div id="empty-state" class="hidden text-center py-16 glass-card rounded-3xl border border-pink-100 max-w-md mx-auto my-8">
+        <div class="w-20 h-20 bg-pink-100 rounded-full flex items-center justify-center text-pink-400 text-3xl mx-auto mb-4">
+          <i class="fa-solid fa-box-open"></i>
+        </div>
+        <h3 class="text-xl font-bold text-gray-700 mb-2">لا توجد منتجات حالياً</h3>
+        <p class="text-gray-500 text-sm max-w-xs mx-auto mb-6">يمكن لبسمة إضافة المنتجات الجديدة مباشرة من خلال لوحة التحكم الخاصة بها.</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- Cart Drawer Overlay -->
+  <div id="cart-overlay" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 opacity-0 pointer-events-none transition-opacity duration-300"></div>
+
+  <!-- Cart Drawer -->
+  <aside id="cart-drawer" class="fixed top-0 left-0 h-full w-full max-w-md bg-white shadow-2xl z-50 transform -translate-x-full transition-transform duration-300 flex flex-col">
+    <!-- Drawer Header -->
+    <div class="p-5 border-b border-pink-100 flex items-center justify-between bg-pink-50/50">
+      <div class="flex items-center gap-2">
+        <i class="fa-solid fa-bag-shopping text-pink-500 text-xl"></i>
+        <h2 class="text-lg font-bold text-gray-800">سلة التسوق</h2>
+        <span id="cart-count" class="bg-pink-200 text-pink-700 text-xs font-bold px-2 py-0.5 rounded-full">0</span>
+      </div>
+      <button id="close-cart-btn" class="w-8 h-8 rounded-full bg-white border border-pink-100 flex items-center justify-center text-gray-500 hover:text-pink-600 transition">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <!-- Drawer Content -->
+    <div id="cart-items" class="flex-1 overflow-y-auto p-5 space-y-4 custom-scrollbar">
+      <!-- Empty Cart Message -->
+      <div id="cart-empty" class="text-center py-12">
+        <div class="w-16 h-16 bg-pink-50 rounded-full flex items-center justify-center text-pink-300 text-2xl mx-auto mb-3">
+          <i class="fa-solid fa-cart-flatbed"></i>
+        </div>
+        <p class="text-gray-500 font-semibold text-sm">سلتكِ فارغة حالياً</p>
+      </div>
+    </div>
+
+    <!-- Drawer Footer -->
+    <div class="p-5 border-t border-pink-100 bg-pink-50/30 space-y-4">
+      <div class="flex justify-between items-center text-base font-bold text-gray-800">
+        <span>المجموع الإجمالي:</span>
+        <span id="cart-total" class="text-pink-600 text-xl font-extrabold">0 ج.م</span>
+      </div>
+
+      <!-- Customer Details Form for Cart Order -->
+      <div class="space-y-2">
+        <input type="text" id="customer-name" placeholder="اسمكِ الكريم" class="w-full px-3.5 py-2 rounded-xl border border-pink-200 text-xs focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white">
+        <input type="text" id="customer-phone" placeholder="رقم الهاتف" class="w-full px-3.5 py-2 rounded-xl border border-pink-200 text-xs focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white">
+        <textarea id="customer-address" placeholder="عنوان التوصيل / الملاحظات" rows="2" class="w-full px-3.5 py-2 rounded-xl border border-pink-200 text-xs focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white resize-none"></textarea>
+      </div>
+
+      <button id="whatsapp-checkout-btn" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 rounded-xl transition shadow-md shadow-emerald-200 flex items-center justify-center gap-2">
+        <i class="fa-brands fa-whatsapp text-xl"></i>
+        <span>إرسال الطلب عبر الواتساب</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Admin Login Modal -->
+  <div id="admin-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4 animate-fade-in">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl border border-pink-100">
+      <div class="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center text-pink-500 mx-auto mb-4 text-2xl">
+        <i class="fa-solid fa-lock"></i>
+      </div>
+      <h3 class="text-xl font-bold text-gray-800 mb-1">تسجيل دخول الإدارة</h3>
+      <p class="text-xs text-gray-500 mb-4">أدخلي كلمة المرور للوصول إلى لوحة التحكم</p>
+      
+      <form id="admin-login-form" class="space-y-4">
+        <div>
+          <input type="password" id="admin-password-input" placeholder="كلمة المرور" class="w-full px-4 py-2.5 rounded-xl border border-pink-200 text-center text-sm focus:outline-none focus:ring-2 focus:ring-pink-400">
+          <p id="login-error" class="text-xs text-rose-500 font-semibold mt-1.5 hidden">كلمة المرور غير صحيحة!</p>
+        </div>
+        <div class="flex gap-2">
+          <button type="submit" class="flex-1 bg-pink-500 text-white py-2.5 rounded-xl font-bold hover:bg-pink-600 transition shadow-md shadow-pink-200">دخول</button>
+          <button type="button" id="close-admin-btn" class="flex-1 bg-gray-100 text-gray-600 py-2.5 rounded-xl font-semibold hover:bg-gray-200 transition">إلغاء</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Admin Dashboard Modal -->
+  <div id="admin-dashboard-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4 animate-fade-in">
+    <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-pink-100 overflow-hidden">
+      <!-- Header -->
+      <div class="p-5 border-b border-pink-100 flex items-center justify-between bg-pink-50/50">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-sliders text-pink-500 text-xl"></i>
+          <h2 class="text-xl font-bold text-gray-800">لوحة تحكم بسمة</h2>
+        </div>
+        <button id="close-dashboard-btn" class="w-8 h-8 rounded-full bg-white border border-pink-100 flex items-center justify-center text-gray-500 hover:text-pink-600 transition">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Dashboard Content -->
+      <div class="p-6 flex-1 overflow-y-auto space-y-6 custom-scrollbar">
+        <!-- Settings Bar -->
+        <div class="glass-card p-4 rounded-2xl border border-pink-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div class="flex items-center gap-3 w-full sm:w-auto">
+            <i class="fa-brands fa-whatsapp text-emerald-500 text-2xl"></i>
+            <div>
+              <label class="block text-xs font-bold text-gray-600">رقم الواتساب لاستقبال الطلبات:</label>
+              <input type="text" id="store-phone-input" class="text-sm font-bold text-gray-800 border-b border-pink-300 focus:outline-none focus:border-pink-500 bg-transparent py-0.5">
+            </div>
+          </div>
+          <button id="save-phone-btn" class="px-4 py-1.5 bg-emerald-500 text-white rounded-xl text-xs font-bold hover:bg-emerald-600 transition shadow-sm w-full sm:w-auto">حفظ الرقم</button>
+        </div>
+
+        <!-- Add New Product Button -->
+        <div class="flex justify-between items-center">
+          <h3 class="text-lg font-bold text-gray-800">قائمة المنتجات الحالية</h3>
+          <button id="add-product-btn" class="px-4 py-2 bg-pink-500 text-white rounded-xl font-bold text-xs sm:text-sm hover:bg-pink-600 transition shadow-md shadow-pink-200 flex items-center gap-2">
+            <i class="fa-solid fa-plus"></i>
+            <span>إضافة منتج جديد</span>
+          </button>
+        </div>
+
+        <!-- Admin Product Table / List -->
+        <div class="border border-pink-100 rounded-2xl overflow-hidden">
+          <div id="admin-product-list" class="divide-y divide-pink-100 bg-white">
+            <!-- Dynamic Admin Product Rows -->
+          </div>
+          <div id="admin-empty-state" class="p-8 text-center text-gray-400 text-sm hidden">
+            لا يوجد منتجات مضافة بعد. اضغطي على "إضافة منتج جديد" للبدء.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Modal (Add / Edit) -->
+  <div id="product-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4 animate-fade-in">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-pink-100 max-h-[90vh] overflow-y-auto custom-scrollbar">
+      <div class="flex justify-between items-center mb-4 pb-3 border-b border-pink-100">
+        <h3 id="modal-title" class="text-lg font-bold text-gray-800">إضافة منتج جديد</h3>
+        <button id="close-product-modal-btn" class="text-gray-400 hover:text-pink-600">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form id="product-form" class="space-y-4">
+        <input type="hidden" id="product-id-input">
+        
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1">اسم المنتج *</label>
+          <input type="text" id="product-title-input" required placeholder="مثال: روج مات فاقع" class="w-full px-3.5 py-2 rounded-xl border border-pink-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-gray-700 mb-1">السعر (ج.م) *</label>
+            <input type="number" id="product-price-input" required placeholder="150" class="w-full px-3.5 py-2 rounded-xl border border-pink-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-700 mb-1">القسم *</label>
+            <select id="product-category-input" required class="w-full px-3.5 py-2 rounded-xl border border-pink-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white">
+              <option value="مكياج">مكياج</option>
+              <option value="عناية بالبشرة">عناية بالبشرة</option>
+              <option value="إكسسوارات">إكسسوارات</option>
+              <option value="عطور">عطور</option>
+              <option value="أخرى">أخرى</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1">صورة المنتج</label>
+          <input type="url" id="product-image-input" placeholder="رابط الصورة (URL) أو اختاري ملف أدناه" class="w-full px-3.5 py-2 rounded-xl border border-pink-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 mb-2">
+          <input type="file" id="product-file-input" accept="image/*" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100">
+        </div>
+
+        <div>
+          <div class="flex justify-between items-center mb-1">
+            <label class="block text-xs font-bold text-gray-700">الوصف</label>
+            <!-- AI Copywriter Generator Button -->
+            <button type="button" id="ai-generate-btn" class="text-xs font-bold text-pink-600 hover:text-pink-700 flex items-center gap-1 bg-pink-50 px-2.5 py-1 rounded-lg border border-pink-200 transition">
+              <i class="fa-solid fa-wand-magic-sparkles"></i>
+              <span id="ai-btn-text">توليد بالذكاء الاصطناعي ✨</span>
+              <span id="ai-spinner" class="hidden"><i class="fa-solid fa-spinner animate-spin"></i></span>
+            </button>
+          </div>
+          <textarea id="product-desc-input" rows="3" placeholder="وصف قصير للمنتج وما يميزه..." class="w-full px-3.5 py-2 rounded-xl border border-pink-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 resize-none"></textarea>
+        </div>
+
+        <div class="pt-2 flex gap-2">
+          <button type="submit" class="flex-1 bg-pink-500 text-white py-2.5 rounded-xl font-bold hover:bg-pink-600 transition shadow-md shadow-pink-200">حفظ المنتج</button>
+          <button type="button" id="cancel-product-btn" class="flex-1 bg-gray-100 text-gray-600 py-2.5 rounded-xl font-semibold hover:bg-gray-200 transition">إلغاء</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Custom Delete Confirmation Modal -->
+  <div id="delete-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4 animate-fade-in">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-xl border border-pink-100">
+      <div class="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center text-rose-500 mx-auto mb-4 text-2xl">
+        <i class="fa-solid fa-trash-can"></i>
+      </div>
+      <h3 class="text-xl font-bold text-gray-800 mb-2">تأكيد الحذف</h3>
+      <p class="text-gray-500 text-sm mb-6">هل أنتِ متأكدة من رغبتكِ في حذف هذا المنتج؟ لا يمكن التراجع عن هذا الإجراء.</p>
+      <div class="flex gap-3">
+        <button id="confirm-delete-btn" class="flex-1 bg-rose-500 text-white py-2.5 rounded-xl font-semibold hover:bg-rose-600 transition shadow-md shadow-rose-200">حذف</button>
+        <button id="cancel-delete-btn" class="flex-1 bg-gray-100 text-gray-600 py-2.5 rounded-xl font-semibold hover:bg-gray-200 transition">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // System Constants
+    const ADMIN_PASSWORD = '2003';
+    const DEFAULT_PHONE = '201129941968';
+
+    // App State
+    let products = JSON.parse(localStorage.getItem('basma_products')) || [];
+    let cart = JSON.parse(localStorage.getItem('basma_cart')) || [];
+    let storePhone = localStorage.getItem('basma_phone') || DEFAULT_PHONE;
+    let isAdminLoggedIn = false;
+    let currentCategory = 'جميع المنتجات';
+    let searchQuery = '';
+    let productToDeleteId = null;
+
+    // DOM Elements
+    const elements = {
+      productList: document.getElementById('product-list'),
+      emptyState: document.getElementById('empty-state'),
+      cartCount: document.getElementById('cart-count'),
+      cartBadge: document.getElementById('cart-badge'),
+      cartDrawer: document.getElementById('cart-drawer'),
+      cartOverlay: document.getElementById('cart-overlay'),
+      cartBtn: document.getElementById('cart-btn'),
+      closeCartBtn: document.getElementById('close-cart-btn'),
+      cartItems: document.getElementById('cart-items'),
+      cartEmpty: document.getElementById('cart-empty'),
+      cartTotal: document.getElementById('cart-total'),
+      whatsappCheckoutBtn: document.getElementById('whatsapp-checkout-btn'),
+      customerName: document.getElementById('customer-name'),
+      customerPhone: document.getElementById('customer-phone'),
+      customerAddress: document.getElementById('customer-address'),
+      adminLoginBtn: document.getElementById('admin-login-btn'),
+      adminModal: document.getElementById('admin-modal'),
+      closeAdminBtn: document.getElementById('close-admin-btn'),
+      adminLoginForm: document.getElementById('admin-login-form'),
+      adminPasswordInput: document.getElementById('admin-password-input'),
+      loginError: document.getElementById('login-error'),
+      adminDashboardModal: document.getElementById('admin-dashboard-modal'),
+      closeDashboardBtn: document.getElementById('close-dashboard-btn'),
+      storePhoneInput: document.getElementById('store-phone-input'),
+      savePhoneBtn: document.getElementById('save-phone-btn'),
+      addProductBtn: document.getElementById('add-product-btn'),
+      productModal: document.getElementById('product-modal'),
+      closeProductModalBtn: document.getElementById('close-product-modal-btn'),
+      cancelProductBtn: document.getElementById('cancel-product-btn'),
+      productForm: document.getElementById('product-form'),
+      modalTitle: document.getElementById('modal-title'),
+      productIdInput: document.getElementById('product-id-input'),
+      productTitleInput: document.getElementById('product-title-input'),
+      productPriceInput: document.getElementById('product-price-input'),
+      productCategoryInput: document.getElementById('product-category-input'),
+      productImageInput: document.getElementById('product-image-input'),
+      productFileInput: document.getElementById('product-file-input'),
+      productDescInput: document.getElementById('product-desc-input'),
+      aiGenerateBtn: document.getElementById('ai-generate-btn'),
+      aiSpinner: document.getElementById('ai-spinner'),
+      aiBtnText: document.getElementById('ai-btn-text'),
+      adminProductList: document.getElementById('admin-product-list'),
+      adminEmptyState: document.getElementById('admin-empty-state'),
+      categoryBtns: document.querySelectorAll('.category-btn'),
+      searchInput: document.getElementById('search-input'),
+      toggleSearchBtn: document.getElementById('toggle-search-btn'),
+      searchContainer: document.getElementById('search-container'),
+      deleteModal: document.getElementById('delete-modal'),
+      confirmDeleteBtn: document.getElementById('confirm-delete-btn'),
+      cancelDeleteBtn: document.getElementById('cancel-delete-btn')
+    };
+
+    // Initialize App
+    window.onload = function() {
+      elements.storePhoneInput.value = storePhone;
+      renderProducts();
+      updateCartUI();
+      setupEventListeners();
+    };
+
+    // Save Data Helpers
+    function saveProducts() {
+      localStorage.setItem('basma_products', JSON.stringify(products));
+      renderProducts();
+      if (isAdminLoggedIn) renderAdminProducts();
+    }
+
+    function saveCart() {
+      localStorage.setItem('basma_cart', JSON.stringify(cart));
+      updateCartUI();
+    }
+
+    function setupEventListeners() {
+      // Search Bar Toggle
+      elements.toggleSearchBtn.addEventListener('click', () => {
+        elements.searchContainer.classList.toggle('hidden');
+        if (!elements.searchContainer.classList.contains('hidden')) {
+          elements.searchInput.focus();
+        }
+      });
+
+      // Search Filtering
+      elements.searchInput.addEventListener('input', (e) => {
+        searchQuery = e.target.value.toLowerCase().trim();
+        renderProducts();
+      });
+
+      // Category Filters
+      elements.categoryBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          elements.categoryBtns.forEach(b => {
+            b.classList.remove('active', 'bg-pink-500', 'text-white', 'shadow-md', 'shadow-pink-200');
+            b.classList.add('bg-white/80', 'text-gray-600', 'border', 'border-pink-100');
+          });
+          btn.classList.add('active', 'bg-pink-500', 'text-white', 'shadow-md', 'shadow-pink-200');
+          btn.classList.remove('bg-white/80', 'text-gray-600', 'border', 'border-pink-100');
+          currentCategory = btn.dataset.category;
+          renderProducts();
+        });
+      });
+
+      // Cart Controls
+      elements.cartBtn.addEventListener('click', openCart);
+      elements.closeCartBtn.addEventListener('click', closeCart);
+      elements.cartOverlay.addEventListener('click', closeCart);
+      elements.whatsappCheckoutBtn.addEventListener('click', checkoutCartWhatsApp);
+
+      // Admin Login
+      elements.adminLoginBtn.addEventListener('click', () => {
+        if (isAdminLoggedIn) {
+          openDashboard();
+        } else {
+          elements.adminModal.classList.remove('hidden');
+          elements.adminPasswordInput.focus();
+        }
+      });
+
+      elements.closeAdminBtn.addEventListener('click', () => {
+        elements.adminModal.classList.add('hidden');
+        elements.loginError.classList.add('hidden');
+        elements.adminPasswordInput.value = '';
+      });
+
+      elements.adminLoginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (elements.adminPasswordInput.value === ADMIN_PASSWORD) {
+          isAdminLoggedIn = true;
+          elements.adminModal.classList.add('hidden');
+          elements.adminPasswordInput.value = '';
+          elements.loginError.classList.add('hidden');
+          showToast('تم تسجيل الدخول بنجاح');
+          openDashboard();
+        } else {
+          elements.loginError.classList.remove('hidden');
+        }
+      });
+
+      // Dashboard Controls
+      elements.closeDashboardBtn.addEventListener('click', closeDashboard);
+      elements.savePhoneBtn.addEventListener('click', () => {
+        storePhone = elements.storePhoneInput.value.trim() || DEFAULT_PHONE;
+        localStorage.setItem('basma_phone', storePhone);
+        showToast('تم حفظ رقم الواتساب الجديد بنجاح');
+      });
+
+      elements.addProductBtn.addEventListener('click', () => openProductModal());
+      elements.closeProductModalBtn.addEventListener('click', closeProductModal);
+      elements.cancelProductBtn.addEventListener('click', closeProductModal);
+      elements.productForm.addEventListener('submit', handleProductSubmit);
+
+      // AI Copywriter Generation
+      elements.aiGenerateBtn.addEventListener('click', generateAIDescription);
+
+      // Image File Reader
+      elements.productFileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(evt) {
+            elements.productImageInput.value = evt.target.result;
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+
+      // Delete Modal Confirmation
+      elements.confirmDeleteBtn.addEventListener('click', () => {
+        if (productToDeleteId) {
+          products = products.filter(p => p.id !== productToDeleteId);
+          cart = cart.filter(item => item.id !== productToDeleteId);
+          saveProducts();
+          saveCart();
+          productToDeleteId = null;
+          elements.deleteModal.classList.add('hidden');
+          showToast('تم حذف المنتج بنجاح');
+        }
+      });
+
+      elements.cancelDeleteBtn.addEventListener('click', () => {
+        productToDeleteId = null;
+        elements.deleteModal.classList.add('hidden');
+      });
+    }
+
+    function renderProducts() {
+      elements.productList.innerHTML = '';
+      
+      const filtered = products.filter(p => {
+        const matchesCategory = currentCategory === 'جميع المنتجات' || p.category === currentCategory;
+        const matchesSearch = p.title.toLowerCase().includes(searchQuery) || (p.desc && p.desc.toLowerCase().includes(searchQuery));
+        return matchesCategory && matchesSearch;
+      });
+
+      if (filtered.length === 0) {
+        elements.emptyState.classList.remove('hidden');
+      } else {
+        elements.emptyState.classList.add('hidden');
+        filtered.forEach(product => {
+          const card = document.createElement('div');
+          card.className = 'glass-card rounded-2xl overflow-hidden border border-pink-100 shadow-sm hover:shadow-md transition duration-300 flex flex-col group';
+          
+          const defaultImg = 'https://placehold.co/400x400/fce7f3/db2777?text=Basma+Store';
+          const imgSrc = product.image || defaultImg;
+
+          card.innerHTML = `
+            <div class="relative overflow-hidden aspect-square bg-pink-50">
+              <img src="${imgSrc}" alt="${product.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.src='${defaultImg}'">
+              <span class="absolute top-3 right-3 bg-white/90 backdrop-blur-sm text-pink-600 text-xs font-bold px-3 py-1 rounded-full shadow-sm">${product.category}</span>
+            </div>
+            <div class="p-4 flex-1 flex flex-col justify-between">
+              <div>
+                <h3 class="font-bold text-gray-800 text-base mb-1 line-clamp-1">${product.title}</h3>
+                <p class="text-gray-500 text-xs mb-3 line-clamp-2 leading-relaxed">${product.desc || 'منتج مميز وعالي الجودة من متجر بسمة.'}</p>
+              </div>
+              <div>
+                <div class="flex items-center justify-between mb-3">
+                  <span class="text-xs text-gray-400 font-semibold">السعر:</span>
+                  <span class="text-pink-600 font-black text-lg">${product.price} ج.م</span>
+                </div>
+                <div class="grid grid-cols-5 gap-2">
+                  <button onclick="orderSingleWhatsApp('${product.id}')" class="col-span-4 bg-emerald-500 hover:bg-emerald-600 text-white py-2 px-3 rounded-xl font-bold text-xs transition flex items-center justify-center gap-1.5 shadow-sm shadow-emerald-100">
+                    <i class="fa-brands fa-whatsapp text-base"></i>
+                    <span>أطلبي الآن</span>
+                  </button>
+                  <button onclick="addToCart('${product.id}')" title="إضافة للسلة" class="col-span-1 bg-pink-100 hover:bg-pink-200 text-pink-600 rounded-xl flex items-center justify-center transition">
+                    <i class="fa-solid fa-cart-plus text-sm"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+          elements.productList.appendChild(card);
+        });
+      }
+    }
+
+    // Single Order via WhatsApp
+    function orderSingleWhatsApp(id) {
+      const product = products.find(p => p.id === id);
+      if (!product) return;
+
+      const message = `مرحباً بسمة 👋%0Aأود طلب المنتج التالي من متجركِ:%0A- *${product.title}*%0A- السعر: *${product.price} ج.م*%0A%0Aيرجى تأكيد التوفر والتفاصيل. شكراً لكِ!`;
+      const cleanPhone = storePhone.replace(/[^0-9]/g, '');
+      window.open(`https://wa.me/${cleanPhone}?text=${message}`, '_blank');
+    }
+
+    function addToCart(id) {
+      const product = products.find(p => p.id === id);
+      if (!product) return;
+
+      const existing = cart.find(item => item.id === id);
+      if (existing) {
+        existing.qty += 1;
+      } else {
+        cart.push({ ...product, qty: 1 });
+      }
+      saveCart();
+      showToast('تم إضافة المنتج إلى سلتكِ');
+    }
+
+    function updateCartQty(id, delta) {
+      const item = cart.find(i => i.id === id);
+      if (!item) return;
+
+      item.qty += delta;
+      if (item.qty <= 0) {
+        cart = cart.filter(i => i.id !== id);
+      }
+      saveCart();
+    }
+
+    function updateCartUI() {
+      const totalCount = cart.reduce((sum, item) => sum + item.qty, 0);
+      const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+
+      elements.cartCount.innerText = totalCount;
+      elements.cartBadge.innerText = totalCount;
+      
+      if (totalCount > 0) {
+        elements.cartBadge.classList.remove('scale-0');
+        elements.cartBadge.classList.add('scale-100');
+      } else {
+        elements.cartBadge.classList.remove('scale-100');
+        elements.cartBadge.classList.add('scale-0');
+      }
+
+      elements.cartTotal.innerText = `${totalPrice} ج.م`;
+
+      // Render items
+      elements.cartItems.innerHTML = '';
+      if (cart.length === 0) {
+        elements.cartEmpty.classList.remove('hidden');
+      } else {
+        elements.cartEmpty.classList.add('hidden');
+        cart.forEach(item => {
+          const el = document.createElement('div');
+          el.className = 'flex items-center gap-3 p-3 bg-pink-50/50 rounded-2xl border border-pink-100';
+          const defaultImg = 'https://placehold.co/100x100/fce7f3/db2777?text=Basma';
+          
+          el.innerHTML = `
+            <img src="${item.image || defaultImg}" class="w-14 h-14 rounded-xl object-cover bg-white" onerror="this.src='${defaultImg}'">
+            <div class="flex-1 min-w-0">
+              <h4 class="font-bold text-gray-800 text-xs truncate">${item.title}</h4>
+              <p class="text-pink-600 font-bold text-xs">${item.price} ج.م</p>
+            </div>
+            <div class="flex items-center gap-2 bg-white px-2 py-1 rounded-xl border border-pink-200">
+              <button onclick="updateCartQty('${item.id}', -1)" class="text-gray-500 hover:text-pink-600 text-xs font-bold px-1">-</button>
+              <span class="text-xs font-bold text-gray-800">${item.qty}</span>
+              <button onclick="updateCartQty('${item.id}', 1)" class="text-gray-500 hover:text-pink-600 text-xs font-bold px-1">+</button>
+            </div>
+          `;
+          elements.cartItems.appendChild(el);
+        });
+      }
+    }
+
+    function openCart() {
+      elements.cartOverlay.classList.remove('opacity-0', 'pointer-events-none');
+      elements.cartDrawer.classList.remove('-translate-x-full');
+    }
+
+    function closeCart() {
+      elements.cartOverlay.classList.add('opacity-0', 'pointer-events-none');
+      elements.cartDrawer.classList.add('-translate-x-full');
+    }
+
+    function checkoutCartWhatsApp() {
+      if (cart.length === 0) {
+        showToast('سلة التسوق فارغة حالياً!');
+        return;
+      }
+
+      const name = elements.customerName.value.trim() || 'زبونة كرامة';
+      const phone = elements.customerPhone.value.trim() || 'غير محدد';
+      const address = elements.customerAddress.value.trim() || 'غير محدد';
+
+      let itemsList = '';
+      let total = 0;
+
+      cart.forEach((item, idx) => {
+        const subtotal = item.price * item.qty;
+        total += subtotal;
+        itemsList += `${idx + 1}. *${item.title}* (العدد: ${item.qty}) - ${subtotal} ج.م%0A`;
+      });
+
+      const message = `مرحباً بسمة 👋%0Aأود طلب السلة التالية من متجركِ:%0A%0A${itemsList}%0A*المجموع الكلي:* ${total} ج.م%0A%0A*بيانات الطلب:*%0A- الاسم: ${name}%0A- الهاتف: ${phone}%0A- العنوان/ملاحظات: ${address}`;
+      const cleanPhone = storePhone.replace(/[^0-9]/g, '');
+      window.open(`https://wa.me/${cleanPhone}?text=${message}`, '_blank');
+    }
+
+    function openDashboard() {
+      elements.adminDashboardModal.classList.remove('hidden');
+      renderAdminProducts();
+    }
+
+    function closeDashboard() {
+      elements.adminDashboardModal.classList.add('hidden');
+    }
+
+    function renderAdminProducts() {
+      elements.adminProductList.innerHTML = '';
+      if (products.length === 0) {
+        elements.adminEmptyState.classList.remove('hidden');
+      } else {
+        elements.adminEmptyState.classList.add('hidden');
+        products.forEach(p => {
+          const row = document.createElement('div');
+          row.className = 'p-3 sm:p-4 flex items-center justify-between gap-3 hover:bg-pink-50/50 transition';
+          const defaultImg = 'https://placehold.co/100x100/fce7f3/db2777?text=Basma';
+
+          row.innerHTML = `
+            <div class="flex items-center gap-3 min-w-0">
+              <img src="${p.image || defaultImg}" class="w-12 h-12 rounded-xl object-cover bg-pink-50" onerror="this.src='${defaultImg}'">
+              <div class="min-w-0">
+                <h4 class="font-bold text-gray-800 text-sm truncate">${p.title}</h4>
+                <div class="flex items-center gap-2 text-xs text-gray-500">
+                  <span class="text-pink-600 font-bold">${p.price} ج.م</span>
+                  <span>•</span>
+                  <span>${p.category}</span>
+                </div>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="openProductModal('${p.id}')" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="تعديل">
+                <i class="fa-solid fa-pen-to-square"></i>
+              </button>
+              <button onclick="promptDeleteProduct('${p.id}')" class="p-2 text-rose-600 hover:bg-rose-50 rounded-lg transition" title="حذف">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+          `;
+          elements.adminProductList.appendChild(row);
+        });
+      }
+    }
+
+    function openProductModal(id = null) {
+      elements.productForm.reset();
+      elements.productIdInput.value = '';
+
+      if (id) {
+        const product = products.find(p => p.id === id);
+        if (product) {
+          elements.modalTitle.innerText = 'تعديل المنتج';
+          elements.productIdInput.value = product.id;
+          elements.productTitleInput.value = product.title;
+          elements.productPriceInput.value = product.price;
+          elements.productCategoryInput.value = product.category;
+          elements.productImageInput.value = product.image || '';
+          elements.productDescInput.value = product.desc || '';
+        }
+      } else {
+        elements.modalTitle.innerText = 'إضافة منتج جديد';
+      }
+      elements.productModal.classList.remove('hidden');
+    }
+
+    function closeProductModal() {
+      elements.productModal.classList.add('hidden');
+    }
+
+    function handleProductSubmit(e) {
+      e.preventDefault();
+      const id = elements.productIdInput.value || 'prod_' + Date.now();
+      const title = elements.productTitleInput.value.trim();
+      const price = parseFloat(elements.productPriceInput.value);
+      const category = elements.productCategoryInput.value;
+      const image = elements.productImageInput.value.trim();
+      const desc = elements.productDescInput.value.trim();
+
+      const existingIndex = products.findIndex(p => p.id === id);
+      const productData = { id, title, price, category, image, desc };
+
+      if (existingIndex >= 0) {
+        products[existingIndex] = productData;
+        showToast('تم تعديل المنتج بنجاح');
+      } else {
+        products.push(productData);
+        showToast('تم إضافة المنتج الجديد بنجاح');
+      }
+
+      saveProducts();
+      closeProductModal();
+    }
+
+    function promptDeleteProduct(id) {
+      productToDeleteId = id;
+      elements.deleteModal.classList.remove('hidden');
+    }
+
+    async function generateAIDescription() {
+      const title = elements.productTitleInput.value.trim();
+      const category = elements.productCategoryInput.value;
+
+      if (!title) {
+        showToast('يرجى كتابة اسم المنتج أولاً لتوليد الوصف!');
+        return;
+      }
+
+      // UI Loading state
+      elements.aiSpinner.classList.remove('hidden');
+      elements.aiBtnText.innerText = 'جاري التوليد...';
+      elements.aiGenerateBtn.disabled = true;
+
+      try {
+        const prompt = `اكتب وصفاً تسويقياً جذاباً ومختصراً باللغة العربية لمتجر منتجات تجميل وأناقة بناتي اسمه "Basma Store". المنتج هو: "${title}" في قسم "${category}". اجعل الوصف مشجعاً للشراء مع إبراز الأناقة والجمال في سطرين إلى ثلاثة أسطر فقط بدون رموز غريبة.`;
+        
+        const apiKey = "";
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+        const payload = {
+          contents: [{ parts: [{ text: prompt }] }]
+        };
+
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+        if (text) {
+          elements.productDescInput.value = text.trim();
+          showToast('تم توليد الوصف بالذكاء الاصطناعي ✨');
+        } else {
+          showToast('لم نتمكن من توليد الوصف، جربي مرة أخرى');
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('حدث خطأ أثناء الاتصال بالذكاء الاصطناعي');
+      } finally {
+        elements.aiSpinner.classList.add('hidden');
+        elements.aiBtnText.innerText = 'توليد بالذكاء الاصطناعي ✨';
+        elements.aiGenerateBtn.disabled = false;
+      }
+    }
+
+    // Toast Notifications
+    function showToast(msg) {
+      const toast = document.createElement('div');
+      toast.className = 'fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs sm:text-sm font-bold px-5 py-2.5 rounded-full shadow-2xl z-50 animate-fade-in border border-pink-400';
+      toast.innerText = msg;
+      document.body.appendChild(toast);
+
+      setTimeout(() => {
+        toast.remove();
+      }, 2500);
+    }
+
+    function resetFilters() {
+      currentCategory = 'جميع المنتجات';
+      searchQuery = '';
+      elements.searchInput.value = '';
+      elements.categoryBtns.forEach((b, idx) => {
+        if (idx === 0) {
+          b.classList.add('active', 'bg-pink-500', 'text-white', 'shadow-md', 'shadow-pink-200');
+          b.classList.remove('bg-white/80', 'text-gray-600', 'border', 'border-pink-100');
+        } else {
+          b.classList.remove('active', 'bg-pink-500', 'text-white', 'shadow-md', 'shadow-pink-200');
+          b.classList.add('bg-white/80', 'text-gray-600', 'border', 'border-pink-100');
+        }
+      });
+      renderProducts();
+    }
+  </script>
+</body>
+</html>
