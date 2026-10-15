@@ -23,12 +23,6 @@
                             500: '#f43f5e',
                             600: '#e11d48',
                             700: '#be123c',
-                        },
-                        girly: {
-                            pink: '#FFB6C1',
-                            purple: '#D8BFD8',
-                            lightBg: '#FFF0F5',
-                            gold: '#D4AF37'
                         }
                     },
                     fontFamily: {
@@ -76,7 +70,7 @@
             <!-- Logo -->
             <div class="flex items-center space-x-3 space-x-reverse cursor-pointer" onclick="filterCategory('all')">
                 <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-rose-400 to-pink-300 flex items-center justify-center text-white text-2xl shadow-md border-2 border-white">
-                    <i class="fa-solid fa-[#F43F5E] fa-crown text-xl"></i>
+                    <i class="fa-solid fa-crown text-xl text-rose-500"></i>
                 </div>
                 <div>
                     <h1 class="text-2xl font-extrabold tracking-wider bg-gradient-to-r from-rose-600 via-pink-500 to-purple-600 bg-clip-text text-transparent">
@@ -113,7 +107,7 @@
                 <span class="inline-block px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-xs font-bold mb-3 tracking-wide">
                     تألقي كالأميرة ✨
                 </span>
-                <h2 class="text-3xl sm:text-5xl font-black mb-4 leading-tight">أرقى منتجات الجمال والعناية والأنواثه</h2>
+                <h2 class="text-3xl sm:text-5xl font-black mb-4 leading-tight">أرقى منتجات الجمال والعناية والأنوثة</h2>
                 <p class="text-rose-100 text-sm sm:text-base mb-6 leading-relaxed">
                     اكتشفي تشكيلتنا المميزة والفاخرة المصممة خصيصاً لتبرز جمالك. اطلبي الآن بسهولة عبر الواتساب مباشرة!
                 </p>
@@ -169,7 +163,7 @@
 
     <!-- Cart Modal -->
     <div id="cartModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm hidden p-4">
-        <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-fade-in">
+        <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
             <!-- Header -->
             <div class="px-6 py-4 bg-gradient-to-r from-rose-500 to-pink-500 text-white flex items-center justify-between">
                 <div class="flex items-center space-x-2 space-x-reverse">
@@ -250,7 +244,7 @@
                     <!-- Add New Product Form -->
                     <div class="bg-gray-50 p-5 rounded-2xl border border-gray-200">
                         <h4 class="font-bold text-gray-800 mb-4 text-base flex items-center gap-2">
-                            <i class="fa-solid fa-[#F43F5E] fa-plus-circle text-rose-500"></i>
+                            <i class="fa-solid fa-plus-circle text-rose-500"></i>
                             إضافة منتج جديد
                         </h4>
 
@@ -279,7 +273,7 @@
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-bold text-gray-700 mb-1">صورة المنتج</label>
+                                    <label class="block text-xs font-bold text-gray-700 mb-1">رفع صورة المنتج</label>
                                     <input type="file" id="prodImageFile" accept="image/*" class="w-full text-xs text-gray-500 file:mr-2 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-rose-50 file:text-rose-700 hover:file:bg-rose-100">
                                 </div>
                             </div>
@@ -315,7 +309,7 @@
 
     <!-- Custom Delete Confirmation Modal -->
     <div id="deleteConfirmModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm hidden p-4">
-        <div class="bg-white rounded-3xl p-6 max-w-sm w-full text-center shadow-2xl animate-fade-in">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full text-center shadow-2xl">
             <div class="w-14 h-14 bg-red-100 text-red-500 rounded-full flex items-center justify-center text-2xl mx-auto mb-4">
                 <i class="fa-solid fa-trash-can"></i>
             </div>
@@ -334,10 +328,8 @@
 
     <!-- Script Application Logic -->
     <script>
-        // --- JSONBin Cloud Configuration ---
-        const JSONBIN_BIN_ID = '6ad11750ac6210605a34d7eb';
-        const JSONBIN_MASTER_KEY = '$2a$10$gP6Ie4Jkw57QABs0Hi3uBegt5eKpLj2wLnpuQzl/5tr1/JF9P03ke';
-        const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
+        // --- Npoint Cloud Configuration ---
+        const NPOINT_URL = 'https://api.npoint.io/1582b92c3d3a879365ed';
 
         // App States
         let products = [];
@@ -357,21 +349,18 @@
         async function fetchCloudProducts() {
             showLoading(true);
             try {
-                const response = await fetch(`${JSONBIN_URL}/latest`, {
-                    headers: {
-                        'X-Master-Key': JSONBIN_MASTER_KEY
-                    }
-                });
+                const response = await fetch(NPOINT_URL);
                 if (response.ok) {
                     const data = await response.json();
-                    if (Array.isArray(data.record)) {
-                        products = data.record;
+                    if (Array.isArray(data)) {
+                        products = data;
                     } else {
                         products = [];
                     }
                 }
             } catch (error) {
                 console.error("Cloud fetch error:", error);
+                products = [];
             } finally {
                 showLoading(false);
                 renderCategoryButtons();
@@ -381,17 +370,17 @@
 
         async function saveProductsToCloud() {
             try {
-                await fetch(JSONBIN_URL, {
-                    method: 'PUT',
+                const res = await fetch(NPOINT_URL, {
+                    method: 'POST', // Npoint uses POST/PUT to update
                     headers: {
-                        'Content-Type': 'application/json',
-                        'X-Master-Key': JSONBIN_MASTER_KEY
+                        'Content-Type': 'application/json'
                     },
-                    body: JSONstringify(products)
+                    body: JSON.stringify(products)
                 });
+                return res.ok;
             } catch (error) {
                 console.error("Cloud save error:", error);
-                alert("حدث خطأ أثناء الاتصال بالسحابة. يرجى التحقق من الاتصال.");
+                return false;
             }
         }
 
@@ -610,6 +599,29 @@
             }
         }
 
+        // --- Image Compression helper ---
+        function compressAndReadImage(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 400; 
+                        const scaleSize = MAX_WIDTH / img.width;
+                        canvas.width = MAX_WIDTH;
+                        canvas.height = img.height * scaleSize;
+
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        resolve(canvas.toDataURL('image/jpeg', 0.6));
+                    };
+                };
+            });
+        }
+
         // --- Admin Product Submission ---
         async function handleProductSubmit(e) {
             e.preventDefault();
@@ -627,7 +639,7 @@
             let imageUrl = urlInput;
 
             if (fileInput.files && fileInput.files[0]) {
-                imageUrl = await readFileAsBase64(fileInput.files[0]);
+                imageUrl = await compressAndReadImage(fileInput.files[0]);
             }
 
             const newProduct = {
@@ -640,25 +652,20 @@
             };
 
             products.unshift(newProduct);
-            await saveProductsToCloud();
+            const isSuccess = await saveProductsToCloud();
 
-            // Reset Form
-            document.getElementById('addProductForm').reset();
+            if (isSuccess) {
+                document.getElementById('addProductForm').reset();
+                renderProducts();
+                renderAdminProductsList();
+                alert('تم حفظ ونشر المنتج أونلاين بنجاح! ✨');
+            } else {
+                products.shift();
+                alert('حدث خطأ أثناء الحفظ. تأكد من اتصال الإنترنت.');
+            }
+
             btn.disabled = false;
             btn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> <span>حفظ ونشر المنتج بالسحابة</span>`;
-
-            renderProducts();
-            renderAdminProductsList();
-            alert('تم نشر المنتج أونلاين بنجاح!');
-        }
-
-        function readFileAsBase64(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = error => reject(error);
-                reader.readAsDataURL(file);
-            });
         }
 
         // --- Admin Delete Actions ---
